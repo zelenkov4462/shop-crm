@@ -1,7 +1,7 @@
 
 import {Button, Form, Input, Modal, Typography} from "antd";
-import { useState, type ReactNode } from "react";
 import md5 from "md5";
+import { useState, type ReactNode } from "react";
 
 interface IAuthFormValues {
   login: string;
@@ -9,14 +9,54 @@ interface IAuthFormValues {
   password: string;
 }
 
+interface IShopById {
+    ResultCode: number,
+    Shops: [
+        {
+            ShopId: number,
+            ShopName: string,
+            CompanyId: number,
+            Address: string,
+            Place: string,
+            Coordinates: string,
+            WorkTime: string,
+            CreateDateTime: string,
+            SupportPhone: string,
+            StocksAccounting: boolean,
+            ForDeviceType: number,
+            CloudFiscalization: boolean,
+            ProductBaseTemplateId: number
+        }
+    ]
+    // "ResultCode": 0,
+    // "Shops": [
+    //     {
+    //         "ShopId": 618289,
+    //         "ShopName": "Агротерминал Склад",
+    //         "CompanyId": 107700,
+    //         "Address": "г.Красноярск ул. Полигонная 1 стр.1",
+    //         "Place": "Склад ",
+    //         "Coordinates": "56.076775,92.957773",
+    //         "WorkTime": "08:00-19:00",
+    //         "CreateDateTime": "22.01.2025 11:24:52",
+    //         "SupportPhone": "8-923-356-61-10",
+    //         "StocksAccounting": true,
+    //         "ForDeviceType": 2,
+    //         "CloudFiscalization": true,
+    //         "ProductBaseTemplateId": 2755
+    //     }
+    // ]
+}
+
 const INSURANCE_FORM_NAME = 'insuranceForm';
 
 export const AuthorizationPage = () => {
   const [isOpen, setIsOpen] = useState(true);
-  const [isSubmit, setIsSubmit] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  // const [isSubmit, setIsSubmit] = useState(false);
 
-  const [data, setData] = useState(null);
-  const [error, setError] = useState(null);
+  const [data, setData] = useState<IShopById | null>(null);
+  // const [error, setError] = useState(null);
 
   const [insuranceForm] = Form.useForm();
 
@@ -28,6 +68,7 @@ export const AuthorizationPage = () => {
   //   };
 
     const handleSubmit = (values: IAuthFormValues) => {
+      setIsLoading(true);
       console.log('values', values);
       const { companyId, password, login } = values;
       const requestId = Date.now().toString();
@@ -66,10 +107,14 @@ fetch(url, {
   body: JSON.stringify(data)
 })
   .then(response => response.json())
-  .then(data => {
-    console.log('Success:', data);
+  .then((shopById: IShopById) => {
+    setIsOpen(false)
+    setData(shopById)
+    setIsLoading(false)
+    console.log('Success:', shopById);
   })
   .catch((error) => {
+    setIsLoading(false)
     console.error('Error:', error);
   });
     // const fetchData = async () => {
@@ -135,6 +180,7 @@ fetch(url, {
     </Form>
   );
   return (
+     <>
       <Modal 
           open={isOpen}
           centered
@@ -153,6 +199,8 @@ fetch(url, {
           cancelText='Отменить'
           destroyOnHidden
           maskClosable={false}
+          loading={isLoading}
+          
           // okButtonProps={{
           //   htmlType: 'submit',
           //   size: 'large',
@@ -167,7 +215,7 @@ fetch(url, {
           width={600}
           modalRender={formRender}
           closable={false}
-          onOk={() => setIsSubmit(true)}
+          // onOk={() => setIsSubmit(true)}
           // onCancel={() => {
           //   setIsOpen(false);
           // }} 
@@ -182,6 +230,12 @@ fetch(url, {
         <Input size="large"/>
             </Form.Item>
       </Modal>
+      {data?.Shops && <pre style={{ color: '#000' }}>
+        <code>
+          {JSON.stringify(data, null, 2)}
+        </code>
+        </pre>}
+     </>
   ); 
 };
 

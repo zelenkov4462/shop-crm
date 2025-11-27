@@ -10,13 +10,13 @@ export default defineConfig({
       },
     }),
   ],
-  server: {
-    proxy: {
-      '.svc': {
-        target: 'http://localhost:5173',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/svc/, ''),
-      },
-    },
-  },
+  // server: {
+  //   proxy: {
+  //     '.svc': {
+  //       target: 'http://localhost:5173',
+  //       changeOrigin: true,
+  //       rewrite: (path) => path.replace(/^\/svc/, ''),
+  //     },
+  //   },
+  // },
 })
